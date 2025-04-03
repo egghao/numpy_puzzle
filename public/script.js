@@ -24,6 +24,7 @@ const questions = [
         description: "Implement the ReLU (Rectified Linear Unit) activation function using NumPy. The function should return max(0, x) for each element in the input array.",
         difficulty: "Easy",
         category: "Activation Functions",
+        status: 'pending',
         template: `import numpy as np
 
 def relu(x):
@@ -62,6 +63,7 @@ def relu(x):
         description: "Implement the forward pass of a linear (fully connected) layer using NumPy. The layer should perform the operation: output = input @ weights + bias",
         difficulty: "Medium",
         category: "Linear Layers",
+        status: 'pending',
         template: `import numpy as np
 
 def linear_forward(x, weights, bias):
@@ -102,6 +104,7 @@ def linear_forward(x, weights, bias):
         description: "Implement the Sigmoid activation function using NumPy. The function should return 1/(1 + exp(-x)) for each element in the input array.",
         difficulty: "Easy",
         category: "Activation Functions",
+        status: 'pending',
         template: `import numpy as np
 
 def sigmoid(x):
@@ -140,6 +143,7 @@ def sigmoid(x):
         description: "Implement a 2D convolution operation using NumPy. The function should perform convolution between input and kernel with optional stride and padding.",
         difficulty: "Hard",
         category: "Convolution",
+        status: 'pending',
         template: `import numpy as np
 
 def conv2d(x, kernel, stride=1, padding=0):
@@ -181,6 +185,7 @@ def conv2d(x, kernel, stride=1, padding=0):
         description: "Implement 2D max pooling operation using NumPy. The function should perform max pooling over the input array with given kernel size and stride.",
         difficulty: "Medium",
         category: "Pooling",
+        status: 'pending',
         template: `import numpy as np
 
 def max_pool2d(x, kernel_size, stride=None):
@@ -221,6 +226,7 @@ def max_pool2d(x, kernel_size, stride=None):
         description: "Implement the Softmax function using NumPy. The function should compute softmax values for each set of scores in x.",
         difficulty: "Easy",
         category: "Activation Functions",
+        status: 'pending',
         template: `import numpy as np
 
 def softmax(x):
@@ -259,6 +265,7 @@ def softmax(x):
         description: "Implement the Cross Entropy Loss function using NumPy. The function should compute the cross entropy between predicted probabilities and true labels.",
         difficulty: "Medium",
         category: "Loss Functions",
+        status: 'pending',
         template: `import numpy as np
 
 def cross_entropy_loss(y_pred, y_true):
@@ -298,6 +305,7 @@ def cross_entropy_loss(y_pred, y_true):
         description: "Implement the Tanh activation function using NumPy. The function should return (exp(x) - exp(-x))/(exp(x) + exp(-x)) for each element in the input array.",
         difficulty: "Easy",
         category: "Activation Functions",
+        status: 'pending',
         template: `import numpy as np
 
 def tanh(x):
@@ -336,6 +344,7 @@ def tanh(x):
         description: "Implement the Leaky ReLU activation function using NumPy. The function should return max(0.01x, x) for each element in the input array.",
         difficulty: "Easy",
         category: "Activation Functions",
+        status: 'pending',
         template: `import numpy as np
 
 def leaky_relu(x, negative_slope=0.01):
@@ -375,6 +384,7 @@ def leaky_relu(x, negative_slope=0.01):
         description: "Implement a 1D convolution operation using NumPy. The function should perform convolution between input and kernel with optional stride and padding.",
         difficulty: "Hard",
         category: "Convolution",
+        status: 'pending',
         template: `import numpy as np
 
 def conv1d(x, kernel, stride=1, padding=0):
@@ -416,6 +426,7 @@ def conv1d(x, kernel, stride=1, padding=0):
         description: "Implement 2D average pooling operation using NumPy. The function should perform average pooling over the input array with given kernel size and stride.",
         difficulty: "Medium",
         category: "Pooling",
+        status: 'pending',
         template: `import numpy as np
 
 def avg_pool2d(x, kernel_size, stride=None):
@@ -456,6 +467,7 @@ def avg_pool2d(x, kernel_size, stride=None):
         description: "Implement the Dropout operation using NumPy. The function should randomly zero some of the elements of the input tensor with probability p.",
         difficulty: "Medium",
         category: "Regularization",
+        status: 'pending',
         template: `import numpy as np
 
 def dropout(x, p=0.5, training=True):
@@ -496,6 +508,7 @@ def dropout(x, p=0.5, training=True):
         description: "Implement Batch Normalization operation using NumPy. The function should normalize the input using running mean and variance.",
         difficulty: "Hard",
         category: "Normalization",
+        status: 'pending',
         template: `import numpy as np
 
 def batch_norm(x, running_mean, running_var, weight=None, bias=None, eps=1e-5, momentum=0.1):
@@ -540,6 +553,7 @@ def batch_norm(x, running_mean, running_var, weight=None, bias=None, eps=1e-5, m
         description: "Implement Layer Normalization operation using NumPy. The function should normalize the input across the last dimension.",
         difficulty: "Medium",
         category: "Normalization",
+        status: 'pending',
         template: `import numpy as np
 
 def layer_norm(x, weight=None, bias=None, eps=1e-5):
@@ -581,6 +595,7 @@ def layer_norm(x, weight=None, bias=None, eps=1e-5):
         description: "Implement Mean Squared Error Loss function using NumPy. The function should compute the mean squared error between predictions and targets.",
         difficulty: "Easy",
         category: "Loss Functions",
+        status: 'pending',
         template: `import numpy as np
 
 def mse_loss(y_pred, y_true):
@@ -613,6 +628,372 @@ def mse_loss(y_pred, y_true):
                 description: "Edge case: large error"
             }
         ]
+    },
+    {
+        id: 16,
+        title: "Nearest Neighbor Upsampling 2D",
+        description: "Implement 2D nearest neighbor upsampling using NumPy. The function should increase the height and width of the input tensor by a given scale factor.",
+        difficulty: "Medium",
+        category: "Upsampling",
+        status: 'pending',
+        template: `import numpy as np
+
+def upsample_nearest2d(x, scale_factor):
+    \"\"\"
+    Implement 2D nearest neighbor upsampling.
+
+    Args:
+        x (np.ndarray): Input array of shape (batch_size, channels, height, width)
+        scale_factor (int or tuple): Multiplier for spatial dimensions (height, width)
+
+    Returns:
+        np.ndarray: Upsampled output array
+    \"\"\"
+    # Your code here
+    pass`,
+        testCases: [
+            {
+                input: "x = np.array([[[[1, 2], [3, 4]]]]), scale_factor=2",
+                output: "array([[[[1, 1, 2, 2], [1, 1, 2, 2], [3, 3, 4, 4], [3, 3, 4, 4]]]])",
+                description: "Basic 2x2 input, scale factor 2"
+            },
+            {
+                input: "x = np.array([[[[1]]]]), scale_factor=3",
+                output: "array([[[[1, 1, 1], [1, 1, 1], [1, 1, 1]]]])",
+                description: "1x1 input, scale factor 3"
+            },
+            {
+                input: "x = np.array([[[[1, 2]]]]), scale_factor=(2, 1)",
+                output: "array([[[[1, 2], [1, 2]]]])",
+                description: "Different scale factors for height and width"
+            }
+        ]
+    },
+    {
+        id: 17,
+        title: "Negative Log Likelihood Loss (NLL Loss)",
+        description: "Implement the Negative Log Likelihood (NLL) loss function using NumPy. Assumes the input contains log-probabilities. The function should compute the average NLL loss given predicted log-probabilities and true class indices.",
+        difficulty: "Medium",
+        category: "Loss Functions",
+        status: 'pending',
+        template: `import numpy as np
+
+def nll_loss(log_probs, y_true):
+    \"\"\"
+    Implement Negative Log Likelihood Loss.
+
+    Args:
+        log_probs (np.ndarray): Log probabilities of shape (batch_size, num_classes)
+        y_true (np.ndarray): True labels (indices) of shape (batch_size,)
+
+    Returns:
+        float: Average NLL loss
+    \"\"\"
+    # Your code here
+    pass`,
+        testCases: [
+            {
+                input: "log_probs = np.log(np.array([[0.1, 0.7, 0.2], [0.8, 0.1, 0.1]])), y_true = np.array([1, 0])",
+                output: "0.2899092034016418", // (-np.log(0.7) - np.log(0.8)) / 2
+                description: "Basic case with 2 samples, 3 classes"
+            },
+            {
+                input: "log_probs = np.log(np.array([[0.9, 0.05, 0.05], [0.05, 0.9, 0.05], [0.05, 0.05, 0.9]])), y_true = np.array([0, 1, 2])",
+                output: "0.10536051565782628", // (-np.log(0.9) * 3) / 3
+                description: "High confidence predictions"
+            },
+            {
+                input: "log_probs = np.log(np.array([[0.4, 0.3, 0.3], [0.3, 0.4, 0.3]])), y_true = np.array([0, 1])",
+                output: "0.916290731874155", // (-np.log(0.4) - np.log(0.4)) / 2
+                description: "Lower confidence probabilities"
+            }
+        ]
+    },
+    {
+        id: 18,
+        title: "Cosine Similarity",
+        description: "Compute the pairwise cosine similarity between two sets of vectors using NumPy. The function should compute the cosine similarity matrix between rows of x1 and rows of x2.",
+        difficulty: "Medium",
+        category: "Distance Functions",
+        status: 'pending',
+        template: `import numpy as np
+
+def cosine_similarity(x1, x2, eps=1e-8):
+    \"\"\"
+    Compute pairwise cosine similarity between row vectors in x1 and x2.
+
+    Args:
+        x1 (np.ndarray): First set of vectors, shape (N, D)
+        x2 (np.ndarray): Second set of vectors, shape (M, D)
+        eps (float): Small value to avoid division by zero.
+
+    Returns:
+        np.ndarray: Cosine similarity matrix of shape (N, M)
+    \"\"\"
+    # Your code here
+    pass`,
+        testCases: [
+            {
+                input: "x1 = np.array([[1., 1.], [0., 1.]]), x2 = np.array([[1., 0.], [1., 1.]])",
+                output: "array([[0.70710678, 1.        ], [0.        , 1.        ]])",
+                description: "Basic 2D vectors"
+            },
+            {
+                input: "x1 = np.array([[1., 2., 3.]]), x2 = np.array([[1., 2., 3.], [-1., -2., -3.]])",
+                output: "array([[ 1., -1.]])",
+                description: "Identical and opposite vectors"
+            },
+            {
+                input: "x1 = np.array([[1., 0., 0.]]), x2 = np.array([[0., 1., 0.], [0., 0., 1.]])",
+                output: "array([[0., 0.]])",
+                description: "Orthogonal vectors"
+            }
+        ]
+    },
+    {
+        id: 19,
+        title: "2D Transposed Convolution",
+        description: "Implement a 2D transposed convolution (often called deconvolution) using NumPy. This operation is typically used to upsample feature maps.",
+        difficulty: "Hard",
+        category: "Convolution",
+        status: 'pending',
+        template: `import numpy as np
+
+def conv_transpose2d(x, kernel, stride=1, padding=0):
+    \"\"\"
+    Implement 2D transposed convolution operation.
+
+    Args:
+        x (np.ndarray): Input array of shape (batch_size, in_channels, height, width)
+        kernel (np.ndarray): Kernel array of shape (in_channels, out_channels, kernel_height, kernel_width)
+        stride (int): Stride of the transposed convolution
+        padding (int): Padding size (applied to the output conceptually)
+
+    Returns:
+        np.ndarray: Output array after transposed convolution
+    \"\"\"
+    # Your code here
+    pass`,
+        testCases: [
+            {
+                input: "x = np.array([[[[1]]]]), kernel = np.array([[[[1, 1], [1, 1]]]]), stride=1",
+                output: "array([[[[1, 1], [1, 1]]]])",
+                description: "Upsample 1x1 to 2x2"
+            },
+            {
+                input: "x = np.array([[[[1, 2], [3, 4]]]]), kernel = np.array([[[[1]]]]), stride=2",
+                output: "array([[[[1, 0, 2, 0], [0, 0, 0, 0], [3, 0, 4, 0], [0, 0, 0, 0]]]])",
+                description: "2x2 input, 1x1 kernel, stride 2"
+            },
+            {
+                input: "x = np.array([[[[1]]]]), kernel = np.array([[[[1]]]]), stride=1, padding=1", // Padding reduces output size
+                output: "array([[[[1]]]])",
+                description: "1x1 input/kernel, stride 1, padding 1 (no effective padding)"
+            }
+        ]
+    },
+    {
+        id: 20,
+        title: "Adaptive Average Pooling 2D",
+        description: "Implement 2D adaptive average pooling using NumPy. The function should pool the input tensor to a fixed output size, regardless of the input size.",
+        difficulty: "Medium",
+        category: "Pooling",
+        status: 'pending',
+        template: `import numpy as np
+
+def adaptive_avg_pool2d(x, output_size):
+    \"\"\"
+    Implement 2D adaptive average pooling.
+
+    Args:
+        x (np.ndarray): Input array of shape (batch_size, channels, height, width)
+        output_size (int or tuple): The target output size (height, width).
+
+    Returns:
+        np.ndarray: Output array of shape (batch_size, channels, output_height, output_width)
+    \"\"\"
+    # Your code here
+    pass`,
+        testCases: [
+            {
+                input: "x = np.array([[[[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12], [13, 14, 15, 16]]]]), output_size=(2, 2)",
+                output: "array([[[[ 3.5,  5.5], [11.5, 13.5]]]])",
+                description: "Pool 4x4 input to 2x2 output"
+            },
+            {
+                input: "x = np.arange(16).reshape(1, 1, 4, 4), output_size=1", // output_size=1 means (1, 1)
+                output: "array([[[[ 7.5]]]])",
+                description: "Pool 4x4 input to 1x1 output (global average pooling)"
+            },
+            {
+                input: "x = np.ones((1, 2, 6, 6)), output_size=(3, 2)",
+                output: "array([[[[1., 1.], [1., 1.], [1., 1.]], [[1., 1.], [1., 1.], [1., 1.]]]])",
+                description: "Pool 6x6 input to 3x2 output, multiple channels"
+            }
+        ]
+    },
+    {
+        id: 21,
+        title: "Hardsigmoid Activation",
+        description: "Implement the Hardsigmoid activation function using NumPy. It's a faster approximation of the sigmoid function.",
+        difficulty: "Easy",
+        category: "Activation Functions",
+        status: 'pending',
+        template: `import numpy as np
+
+def hardsigmoid(x):
+    \"\"\"
+    Implement the Hardsigmoid activation function.
+    Returns 0 if x <= -3, 1 if x >= 3, and (x/6 + 0.5) otherwise.
+
+    Args:
+        x (np.ndarray): Input array
+
+    Returns:
+        np.ndarray: Output array with Hardsigmoid applied
+    \"\"\"
+    # Your code here
+    pass`,
+        testCases: [
+            {
+                input: "np.array([-4, -3, 0, 3, 4])",
+                output: "array([0., 0., 0.5, 1., 1.])",
+                description: "Basic test covering all three regions"
+            },
+            {
+                input: "np.array([-1.5, 1.5])",
+                output: "array([0.25, 0.75])",
+                description: "Values within the linear region"
+            },
+            {
+                input: "np.zeros((2,2))",
+                output: "array([[0.5, 0.5], [0.5, 0.5]])",
+                description: "Edge case: all zeros"
+            }
+        ]
+    },
+    {
+        id: 22,
+        title: "Pad Tensor",
+        description: "Implement padding for a tensor using NumPy. The function should pad the input tensor according to the specified padding amounts for each dimension.",
+        difficulty: "Medium",
+        category: "Utility",
+        status: 'pending',
+        template: `import numpy as np
+
+def pad(x, pad_width, mode='constant', constant_values=0):
+    \"\"\"
+    Pad an N-dimensional tensor.
+
+    Args:
+        x (np.ndarray): Input tensor.
+        pad_width (tuple): Tuple of tuples, ((before_dim1, after_dim1), ...). Specifies padding for each dimension.
+        mode (str): Padding mode (e.g., 'constant', 'reflect', 'edge'). Defaults to 'constant'.
+        constant_values (scalar): Value to use for constant padding. Defaults to 0.
+
+    Returns:
+        np.ndarray: Padded tensor.
+    \"\"\"
+    # Your code here
+    # Hint: np.pad is very useful here!
+    pass`,
+        testCases: [
+            {
+                input: "x = np.array([[1, 2], [3, 4]]), pad_width=((1, 1), (1, 1))",
+                output: "array([[0, 0, 0, 0], [0, 1, 2, 0], [0, 3, 4, 0], [0, 0, 0, 0]])",
+                description: "Constant padding of 1 around a 2x2 array"
+            },
+            {
+                input: "x = np.array([1, 2, 3]), pad_width=((2, 1))",
+                output: "array([0, 0, 1, 2, 3, 0])",
+                description: "1D array padding (2 before, 1 after)"
+            },
+            {
+                input: "x = np.array([[1, 2]]), pad_width=((0, 0), (1, 3)), constant_values=-1",
+                output: "array([[-1, 1, 2, -1, -1, -1]])",
+                description: "Padding only the last dimension with a specific value"
+            }
+        ]
+    },
+    {
+        id: 23,
+        title: "Embedding Lookup",
+        description: "Implement a simple embedding lookup using NumPy. Given an embedding matrix and indices, return the corresponding embedding vectors.",
+        difficulty: "Medium",
+        category: "Embedding",
+        status: 'pending',
+        template: `import numpy as np
+
+def embedding(indices, embedding_matrix):
+    \"\"\"
+    Perform embedding lookup.
+
+    Args:
+        indices (np.ndarray): Array of indices to look up.
+        embedding_matrix (np.ndarray): The embedding matrix (num_embeddings, embedding_dim).
+
+    Returns:
+        np.ndarray: The corresponding embedding vectors.
+    \"\"\"
+    # Your code here
+    pass`,
+        testCases: [
+            {
+                input: "indices = np.array([1, 0, 1]), embedding_matrix = np.array([[0.1, 0.2], [0.3, 0.4], [0.5, 0.6]])",
+                output: "array([[0.3, 0.4], [0.1, 0.2], [0.3, 0.4]])",
+                description: "Basic lookup with 1D indices"
+            },
+            {
+                input: "indices = np.array([[0, 2], [1, 0]]), embedding_matrix = np.arange(6).reshape(3, 2)", // Matrix: [[0, 1], [2, 3], [4, 5]]
+                output: "array([[[0, 1], [4, 5]], [[2, 3], [0, 1]]])",
+                description: "Lookup with 2D indices"
+            },
+            {
+                input: "indices = np.array([0]), embedding_matrix = np.array([[10, 20]])",
+                output: "array([[10, 20]])",
+                description: "Single index lookup"
+            }
+        ]
+    },
+    {
+        id: 24,
+        title: "L1 Loss (Mean Absolute Error)",
+        description: "Implement the L1 Loss function (Mean Absolute Error) using NumPy. It calculates the average absolute difference between predicted and true values.",
+        difficulty: "Easy",
+        category: "Loss Functions",
+        status: 'pending',
+        template: `import numpy as np
+
+def l1_loss(y_pred, y_true):
+    \"\"\"
+    Implement L1 Loss (Mean Absolute Error).
+
+    Args:
+        y_pred (np.ndarray): Predicted values.
+        y_true (np.ndarray): True values.
+
+    Returns:
+        float: The mean absolute error.
+    \"\"\"
+    # Your code here
+    pass`,
+        testCases: [
+            {
+                input: "y_pred = np.array([1, 2, 3]), y_true = np.array([1, 2, 4])",
+                output: "0.6666666666666666", // (|1-1| + |2-3| + |3-2|) / 3 = (0 + 1 + 1) / 3
+                description: "Basic 1D case"
+            },
+            {
+                input: "y_pred = np.array([[1, 1], [1, 1]]), y_true = np.array([[1, 1], [1, 1]])",
+                output: "0.0",
+                description: "Edge case: perfect predictions (zero loss)"
+            },
+            {
+                input: "y_pred = np.array([1, 2]), y_true = np.array([-1, -2])",
+                output: "3.0", // (|1 - (-1)| + |2 - (-2)|) / 2 = (2 + 4) / 2
+                description: "Positive predictions, negative targets"
+            }
+        ]
     }
 ];
 
@@ -629,6 +1010,8 @@ const inputData = document.getElementById('inputData');
 const expectedResult = document.getElementById('expectedResult');
 const filterBtn = document.getElementById('filterBtn');
 const filterDropdown = document.getElementById('filterDropdown');
+const themeToggleBtn = document.getElementById('themeToggle');
+const searchBar = document.getElementById('searchBar');
 
 // Filter state
 let activeFilters = {
@@ -640,7 +1023,11 @@ let activeFilters = {
         'Pooling',
         'Regularization',
         'Normalization',
-        'Loss Functions'
+        'Loss Functions',
+        'Upsampling',
+        'Distance Functions',
+        'Embedding',
+        'Utility'
     ]
 };
 
@@ -696,6 +1083,7 @@ function populateQuestions() {
     filteredQuestions.forEach(question => {
         const card = document.createElement('div');
         card.className = 'question-card';
+        card.classList.add(question.status || 'pending');
         card.innerHTML = `
             <div class="question-card-content">
                 <h3>${question.title}</h3>
@@ -921,9 +1309,34 @@ async function executeCode(code, testInput) {
     }
 }
 
+// Theme toggle functionality
+function applyTheme(theme) {
+    if (theme === 'dark') {
+        document.body.classList.add('dark-mode');
+        themeToggleBtn.textContent = '🌙'; // Moon icon for dark mode
+    } else {
+        document.body.classList.remove('dark-mode');
+        themeToggleBtn.textContent = '☀️'; // Sun icon for light mode
+    }
+    // Add a small delay before updating scroll indicators to allow CSS transitions
+    setTimeout(updateScrollIndicators, 350);
+}
+
+themeToggleBtn.addEventListener('click', () => {
+    const isDarkMode = document.body.classList.contains('dark-mode');
+    const newTheme = isDarkMode ? 'light' : 'dark';
+    localStorage.setItem('theme', newTheme);
+    applyTheme(newTheme);
+});
+
+// Apply saved theme on initial load
+const savedTheme = localStorage.getItem('theme') || 'light'; // Default to light
+applyTheme(savedTheme);
+
 // Initialize the application
 populateQuestions();
 initTabs(); // Initialize tabs
+applyTheme(savedTheme); // Apply theme after initializing other elements
 
 // Call when content is updated
 function refreshOutput() {
@@ -966,6 +1379,9 @@ runCodeBtn.addEventListener('click', async () => {
     const currentQuestion = questions.find(q => q.title === currentTitle);
     const testCasesData = currentQuestion?.testCases || [];
     
+    let allPassed = true; // Flag to track if all tests passed
+    let attempted = false; // Flag to track if any test was run
+
     // Run each test case
     for (let i = 0; i < 3; i++) {
         const outputElement = outputs[i];
@@ -976,6 +1392,7 @@ runCodeBtn.addEventListener('click', async () => {
             continue;
         }
         
+        attempted = true; // Mark that at least one test case was available and attempted
         const testCase = testCasesData[i];
         const formattedExpectedOutput = formatValueDisplayString(testCase.output);
         
@@ -986,6 +1403,7 @@ runCodeBtn.addEventListener('click', async () => {
             if (result.status === 'error') {
                 outputElement.style.color = '#ff4444'; // Red for error
                 outputElement.textContent = result.output;
+                allPassed = false; // Mark as failed if any test case errors
             } else {
                 const actualOutput = result.output ? result.output.trim() : '';
                 outputElement.textContent = actualOutput;
@@ -995,14 +1413,29 @@ runCodeBtn.addEventListener('click', async () => {
                     outputElement.style.color = '#4caf50'; // Green for pass
                 } else {
                     outputElement.style.color = '#ffcc00'; // Yellow/Orange for mismatch
+                    allPassed = false; // Mark as failed if any test case mismatches
                 }
             }
         } catch (error) {
             outputElement.style.color = '#ff4444'; // Red for error
             outputElement.textContent = `Error: ${error.message}`;
+            allPassed = false; // Mark as failed on exception
         }
     }
     
+    // Update question status
+    if (currentQuestion && attempted) {
+        if (allPassed) {
+            currentQuestion.status = 'completed';
+        } else {
+            currentQuestion.status = 'ongoing';
+        }
+        populateQuestions(); // Refresh the question list to show updated status
+    }
+
     // Update scroll indicators after all outputs are populated
     setTimeout(refreshOutput, 500); 
-}); 
+});
+
+// Add event listener for the search bar
+searchBar.addEventListener('input', populateQuestions); 
