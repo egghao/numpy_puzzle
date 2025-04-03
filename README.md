@@ -1,11 +1,9 @@
 # NumPy Neural Network Practice
 
+![NumPy Practice Screenshot](screenshot.png) 
+
 An interactive web application for practicing NumPy implementations of common neural network operations. This project helps you understand the fundamentals of deep learning by implementing various neural network components from scratch using NumPy.
 
-## Screenshot
-
-*Replace this text and the line below with your actual screenshot.*
-![NumPy Practice Screenshot](screenshot.png) 
 
 ## Features
 
