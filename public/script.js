@@ -1563,21 +1563,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Default state (no class) shows welcome, loadQuestion adds class on success.
 });
 
-// Theme Toggle Event Listener
-if (themeToggle) {
-    themeToggle.addEventListener('click', () => {
-        document.body.classList.toggle('dark-mode');
-        const newTheme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
-        localStorage.setItem('theme', newTheme);
-        themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
-
-        // Update CodeMirror theme
-        if (editor) {
-            editor.setOption("theme", newTheme === 'dark' ? "monokai" : "default");
-        }
-    });
-}
-
 // Add event listener for the search bar input for live filtering
 // This listener should already exist and call populateQuestions correctly.
 // Ensure it is present and correctly attached if issues persist.
@@ -1615,100 +1600,41 @@ runCodeButton.addEventListener('click', async () => {
     
     // Set all to "Running..."
     outputs.forEach(out => {
-        if (out) { // Check if element exists
+        if (out) {
             out.textContent = 'Running...';
-            out.style.color = '#ddd';
+            out.style.color = '';
         }
     });
-    
-    // Get the current question's test cases
-    const currentTitle = questionTitle.textContent;
-    const currentQuestion = questions.find(q => q.title === currentTitle);
-    const testCasesData = currentQuestion?.testCases || [];
-    
-    let allPassed = true; // Flag to track if all tests passed
-    let attempted = false; // Flag to track if any test was run
 
-    // Run each test case
+    // Execute test cases and collect results
+    let testResults = [];
     for (let i = 0; i < 3; i++) {
-        const outputElement = outputs[i];
-        if (!outputElement) continue; // Skip if output element doesn't exist
-        
-        if (i >= testCasesData.length) {
-            outputElement.textContent = 'No test case available';
-            continue;
+        const testCase = currentQuestion.testCases[i];
+        const testInput = testCase ? testCase.input : "";
+        const result = await executeCode(code, testInput);
+        testResults.push(result);
+        if (outputs[i]) {
+            outputs[i].textContent = result.output;
+            outputs[i].style.color = result.status === "success" ? "green" : "red";
         }
-        
-        attempted = true; // Mark that at least one test case was available and attempted
-        const testCase = testCasesData[i];
-        const formattedExpectedOutput = formatValueDisplayString(testCase.output);
-        
-        try {
-            // Call the renamed function executeCode
-            const result = await executeCode(code, testCase.input); 
-            
-            if (result.status === 'error') {
-                outputElement.style.color = '#ff4444'; // Red for error
-                outputElement.textContent = result.output;
-                allPassed = false; // Mark as failed if any test case errors
-            } else {
-                // Apply formatting to BOTH actual and expected outputs before comparison
-                const formattedActualOutput = formatValueDisplayString(result.output);
-                // const formattedExpectedOutput = formatValueDisplayString(testCase.output); // Already calculated above loop
-                // Re-calculate formattedExpectedOutput here to be sure
-                const currentFormattedExpectedOutput = formatValueDisplayString(testCase.output); 
-
-                outputElement.textContent = formattedActualOutput; // Display the formatted actual output
-                
-                // Check if FORMATTED output matches FORMATTED expected result
-                if (formattedActualOutput === currentFormattedExpectedOutput) {
-                    outputElement.style.color = '#4caf50'; // Green for pass
-                } else {
-                    outputElement.style.color = '#ffcc00'; // Yellow/Orange for mismatch
-                    allPassed = false; // Mark as failed if any test case mismatches
-                }
-            }
-        } catch (error) {
-            outputElement.style.color = '#ff4444'; // Red for error
-            outputElement.textContent = `Error: ${error.message}`;
-            allPassed = false; // Mark as failed on exception
-        }
-    } // End of loop through test cases
-    
-    // --- Update question status and save to localStorage ---
-    if (currentQuestion && attempted) {
-        if (allPassed) {
-            currentQuestion.status = 'completed';
-        } else {
-            currentQuestion.status = 'ongoing';
-        }
-        
-        // Save status to localStorage
-        try {
-            const statuses = JSON.parse(localStorage.getItem('questionStatuses') || '{}');
-            statuses[currentQuestion.id] = currentQuestion.status;
-            localStorage.setItem('questionStatuses', JSON.stringify(statuses));
-        } catch (e) {
-            console.error("Failed to save question status:", e);
-        }
-
-        // Save outputs to localStorage
-        try {
-            let currentTestOutputs = {
-                case1: testResults[0] ? testResults[0].output : '',
-                case2: testResults[1] ? testResults[1].output : '',
-                case3: testResults[2] ? testResults[2].output : ''
-            };
-
-            let allTestOutputs = JSON.parse(localStorage.getItem('testOutputs') || '{}');
-            allTestOutputs[currentQuestion.id] = currentTestOutputs;
-            localStorage.setItem('testOutputs', JSON.stringify(allTestOutputs));
-        } catch (e) {
-            console.error("Failed to save test outputs:", e);
-        }
-        
-        populateQuestions(); // Refresh the question list to show updated status
     }
+
+    // Save outputs to localStorage
+    try {
+        let currentTestOutputs = {
+            case1: testResults[0] ? testResults[0].output : '',
+            case2: testResults[1] ? testResults[1].output : '',
+            case3: testResults[2] ? testResults[2].output : ''
+        };
+
+        let allTestOutputs = JSON.parse(localStorage.getItem('testOutputs') || '{}');
+        allTestOutputs[currentQuestion.id] = currentTestOutputs;
+        localStorage.setItem('testOutputs', JSON.stringify(allTestOutputs));
+    } catch (e) {
+        console.error("Failed to save test outputs:", e);
+    }
+    
+    populateQuestions(); // Refresh the question list to show updated status
 
     // Update scroll indicators after all outputs are populated
     setTimeout(refreshOutput, 500); 
