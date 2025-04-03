@@ -707,6 +707,63 @@ function populateQuestions() {
     });
 }
 
+// Helper function to format array/value strings for display (removes array wrappers)
+function formatValueDisplayString(str) {
+    if (!str) return str;
+    str = str.trim();
+    // Remove 'np.array(' or 'array(' wrappers
+    if (str.startsWith('np.array(') && str.endsWith(')')) {
+        str = str.substring(9, str.length - 1);
+    } else if (str.startsWith('array(') && str.endsWith(')')) {
+         str = str.substring(6, str.length - 1);
+    }
+    // Note: Robustly removing dtype info is complex with regex, skipping for now.
+    return str.trim();
+}
+
+// Helper function to format the multi-argument input display
+function formatInputDisplay(inputString) {
+    if (!inputString || typeof inputString !== 'string') return inputString;
+    inputString = inputString.trim();
+
+    // Handle single value inputs (no '=')
+    if (!inputString.includes('=')) {
+        return formatValueDisplayString(inputString);
+    }
+
+    // Split arguments carefully, respecting brackets/parentheses
+    let parts = [];
+    let balance = 0;
+    let currentPartStart = 0;
+    for (let i = 0; i < inputString.length; i++) {
+        const char = inputString[i];
+        if (char === '(' || char === '[' || char === '{') {
+            balance++;
+        } else if (char === ')' || char === ']' || char === '}') {
+            balance--;
+        } else if (char === ',' && balance === 0) {
+            parts.push(inputString.substring(currentPartStart, i).trim());
+            currentPartStart = i + 1;
+        }
+    }
+    parts.push(inputString.substring(currentPartStart).trim()); // Add the last part
+
+    // Format each part as "name: value"
+    let result = [];
+    for (const part of parts) {
+        const eqIndex = part.indexOf('=');
+        if (eqIndex > -1) {
+            const name = part.substring(0, eqIndex).trim();
+            const valueExpr = part.substring(eqIndex + 1).trim();
+            result.push(`${name}: ${formatValueDisplayString(valueExpr)}`);
+        } else {
+             // Fallback for parts without '=', though shouldn't happen with the logic above
+            result.push(formatValueDisplayString(part));
+        }
+    }
+    return result.join('\n'); // Use newline characters for display in <pre>
+}
+
 // Load question into code view
 function loadQuestion(question) {
     questionTitle.textContent = question.title;
@@ -718,14 +775,14 @@ function loadQuestion(question) {
         </div>
     `;
     
-    // Populate test cases
+    // Populate test cases display (format expected output)
     testCases.innerHTML = question.testCases.map((testCase, index) => `
         <div class="test-case">
             <h4>Test Case ${index + 1}</h4>
             <p>${testCase.description}</p>
             <div class="test-case-content">
-                <pre data-type="Input"><code>${testCase.input}</code></pre>
-                <pre data-type="Expected Output"><code>${testCase.output}</code></pre>
+                <pre data-type="Input"><code>${testCase.input}</code></pre> // Keep raw input here
+                <pre data-type="Expected Output"><code>${formatValueDisplayString(testCase.output)}</code></pre>
             </div>
         </div>
     `).join('');
@@ -733,25 +790,34 @@ function loadQuestion(question) {
     // Set editor content
     editor.setValue(question.template);
     
-    // Set input data and expected result for all tabs
+    // Set input data and expected result for all tabs (format both)
     const testCasesData = question.testCases;
     
     // Update first tab
     if (testCasesData[0]) {
-        inputData.textContent = testCasesData[0].input || 'No test input available';
-        expectedResult.textContent = testCasesData[0].output || 'No expected output available';
+        inputData.textContent = formatInputDisplay(testCasesData[0].input) || 'No test input available';
+        expectedResult.textContent = formatValueDisplayString(testCasesData[0].output) || 'No expected output available';
+    } else {
+        inputData.textContent = 'No test input available';
+        expectedResult.textContent = 'No expected output available';
     }
     
     // Update second tab
     if (testCasesData[1]) {
-        document.getElementById('inputData2').textContent = testCasesData[1].input || 'No test input available';
-        document.getElementById('expectedResult2').textContent = testCasesData[1].output || 'No expected output available';
+        document.getElementById('inputData2').textContent = formatInputDisplay(testCasesData[1].input) || 'No test input available';
+        document.getElementById('expectedResult2').textContent = formatValueDisplayString(testCasesData[1].output) || 'No expected output available';
+    } else {
+        document.getElementById('inputData2').textContent = 'No test input available';
+        document.getElementById('expectedResult2').textContent = 'No expected output available';
     }
     
     // Update third tab
     if (testCasesData[2]) {
-        document.getElementById('inputData3').textContent = testCasesData[2].input || 'No test input available';
-        document.getElementById('expectedResult3').textContent = testCasesData[2].output || 'No expected output available';
+        document.getElementById('inputData3').textContent = formatInputDisplay(testCasesData[2].input) || 'No test input available';
+        document.getElementById('expectedResult3').textContent = formatValueDisplayString(testCasesData[2].output) || 'No expected output available';
+    } else {
+        document.getElementById('inputData3').textContent = 'No test input available';
+        document.getElementById('expectedResult3').textContent = 'No expected output available';
     }
     
     // Reset output displays
@@ -856,6 +922,8 @@ runCode.addEventListener('click', async () => {
         }
         
         const testCase = testCases[i];
+        // Use the same formatting for comparison as used for display
+        const formattedExpectedOutput = formatValueDisplayString(testCase.output);
         
         try {
             const response = await fetch('http://localhost:5000/run_code', {
@@ -868,7 +936,7 @@ runCode.addEventListener('click', async () => {
                 credentials: 'omit',
                 body: JSON.stringify({ 
                     code,
-                    test_input: testCase.input
+                    test_input: testCase.input // Send raw input string
                 })
             });
             
@@ -878,11 +946,13 @@ runCode.addEventListener('click', async () => {
                 outputs[i].style.color = '#ff4444';
                 outputs[i].textContent = result.output;
             } else {
+                // Backend output is already formatted as list string
+                const actualOutput = result.output.trim();
                 outputs[i].style.color = '#ddd';
-                outputs[i].textContent = result.output;
+                outputs[i].textContent = actualOutput;
                 
-                // Check if output matches expected result
-                if (result.output.trim() === testCase.output.trim()) {
+                // Check if output matches formatted expected result
+                if (actualOutput === formattedExpectedOutput) {
                     outputs[i].style.color = '#4caf50';
                 }
             }

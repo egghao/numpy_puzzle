@@ -86,43 +86,54 @@ def secure_exec(code: str, test_input: str = None) -> Dict[str, Any]:
         
         # Execute the function with test input and capture its return value
         with contextlib.redirect_stdout(output_buffer):
+            # Default result in case no test input is provided or evaluated
+            result = None 
             if test_input:
+                seed_processed_input = test_input
                 # Parse the test_input string to check for random seed
                 if "np.random.seed" in test_input:
-                    # Extract the seed part and set it
                     parts = test_input.split(",")
+                    cleaned_parts = []
                     for part in parts:
-                        if "np.random.seed" in part:
-                            # Extract the seed value
-                            seed_str = part.strip()
+                        part_stripped = part.strip()
+                        if part_stripped.startswith("np.random.seed"):
                             try:
                                 # Execute just the seed setting
-                                exec(seed_str, restricted_globals)
-                                # Remove the seed part from test_input
-                                test_input = test_input.replace(seed_str + ",", "")
-                                test_input = test_input.replace(", " + seed_str, "")
-                                test_input = test_input.replace(seed_str, "")
+                                exec(part_stripped, restricted_globals)
                             except Exception as e:
                                 return {
                                     'status': 'error',
                                     'output': f'Error setting random seed: {e}'
                                 }
+                        else:
+                            cleaned_parts.append(part)
+                    # Reconstruct the input string without the seed part
+                    seed_processed_input = ",".join(cleaned_parts).strip()
                 
-                # Execute test input string to get the actual input values
-                test_values = eval(test_input, restricted_globals)
-                if isinstance(test_values, tuple):
-                    result = func(*test_values)
+                # Construct the actual function call string
+                call_string = f"{func_name}({seed_processed_input})"
+                
+                # Evaluate the function call string
+                result = eval(call_string, restricted_globals, local_dict)
+
+            else:
+                # Default execution if no test input
+                # This path might need adjustment depending on expected behavior without input
+                # or we handle it based on specific function needs if this scenario occurs.
+                # If a default like np.array([-1, 0, 1]) is always needed, it should be passed
+                # as default test_input from the frontend or handled here explicitly.
+                # result = func() # Assuming func() is valid if no test_input
+                pass # Or maybe raise an error if test_input is mandatory? For now, do nothing.
+
+            # Print the result if execution happened
+            if result is not None:
+                if isinstance(result, np.ndarray):
+                    # Convert to list and then to string for cleaner output
+                    print(str(result.tolist()))
                 else:
-                    result = func(test_values)
-            else:
-                # Default test input if none provided
-                result = func(np.array([-1, 0, 1]))
-            
-            # Print the result
-            if isinstance(result, np.ndarray):
-                print(np.array2string(result, precision=8, separator=', '))
-            else:
-                print(result)
+                    print(str(result))
+            elif not test_input:
+                 print("No test input provided, function not called.")
             
         # Get the printed output
         output = output_buffer.getvalue()
