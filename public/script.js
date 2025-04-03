@@ -163,12 +163,12 @@ def conv2d(x, kernel, stride=1, padding=0):
     pass`,
         testCases: [
             {
-                input: "x = np.array([[[[1, 1, 1], [1, 1, 1], [1, 1, 1]]]]), kernel = np.array([[[[1, 1], [1, 1]]]])",
+                input: "x = np.array([[[[1, 1, 1], [1, 1, 1], [1, 1, 1]]]]), kernel = np.array([[[[1, 1], [1, 1]]])",
                 output: "array([[[[4, 4], [4, 4]]]])",
                 description: "Basic test case with 3x3 input and 2x2 kernel"
             },
             {
-                input: "x = np.array([[[[1, 2], [3, 4]]]]), kernel = np.array([[[[1, 1], [1, 1]]]])",
+                input: "x = np.array([[[[1, 2], [3, 4]]]]), kernel = np.array([[[[1, 1], [1, 1]]])",
                 output: "array([[[[10]]]])",
                 description: "Small input with varied values"
             },
@@ -1236,6 +1236,20 @@ function formatInputDisplay(inputString) {
     return result.join('\n'); // Use newline characters for display in <pre>
 }
 
+// --- Load saved statuses on initial load ---
+function loadSavedStatuses() {
+    try {
+        const savedStatuses = JSON.parse(localStorage.getItem('questionStatuses') || '{}');
+        questions.forEach(q => {
+            if (savedStatuses[q.id]) {
+                q.status = savedStatuses[q.id];
+            }
+        });
+    } catch (e) {
+        console.error("Failed to load question statuses:", e);
+    }
+}
+
 // Load question into code view
 function loadQuestion(questionId) {
     const question = questions.find(q => q.id === questionId);
@@ -1309,13 +1323,45 @@ function loadQuestion(questionId) {
         expectedResultElements[2].textContent = 'No expected output available';
     }
     
-    // Reset output displays
-    outputElements.forEach(out => {
-        if (out) { // Check if element exists
-            out.textContent = 'Run code to see output';
-            out.style.color = '';
-        }
-    });
+    // Reset/Load output displays
+    try {
+        let savedOutputs = JSON.parse(localStorage.getItem('testOutputs') || '{}');
+        let questionOutputs = savedOutputs[questionId] || { case1: '', case2: '', case3: '' };
+
+        outputElements.forEach((out, index) => {
+            if (out) { 
+                let savedOutputText = questionOutputs[`case${index + 1}`];
+                out.textContent = savedOutputText;
+                
+                // Determine and apply color based on comparison (re-use comparison logic)
+                if (index < question.testCases.length) {
+                    const testCase = question.testCases[index];
+                    const currentFormattedExpectedOutput = formatValueDisplayString(testCase.output);
+                    const formattedSavedOutput = formatValueDisplayString(savedOutputText);
+                    
+                    // Ensure savedOutputText is treated as a string before calling startsWith
+                    if ((savedOutputText ?? '').startsWith('Error:')) {
+                         out.style.color = '#ff4444'; // Red for error
+                    } else if (formattedSavedOutput === currentFormattedExpectedOutput) {
+                        out.style.color = '#4caf50'; // Green for pass
+                    } else {
+                        out.style.color = '#ffcc00'; // Yellow for mismatch
+                    }
+                } else {
+                     out.style.color = ''; // Default color if no test case
+                }
+            }
+        });
+    } catch (e) {
+        console.error("Failed to load test outputs:", e);
+        // Fallback: Just reset all outputs
+        outputElements.forEach(out => {
+            if (out) { 
+                out.textContent = 'Run code to see output';
+                out.style.color = '';
+            }
+        });
+    }
     
     // On mobile, collapse the questions panel after selection
     if (window.innerWidth <= 768) {
@@ -1460,6 +1506,9 @@ function updateFilterDropdownCheckboxes() {
 
 // Initial setup on DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Load saved data FIRST ---
+    loadSavedStatuses();
+
     // --- Theme Initialization ---
     const currentTheme = localStorage.getItem('theme');
     // Default to dark mode if no theme saved OR if saved theme is dark
@@ -1474,7 +1523,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (themeToggle) themeToggle.textContent = '🌙'; // Moon icon = light mode on (click for dark)
     }
 
-    // Populate questions on initial load
+    // Populate questions on initial load (now uses loaded statuses)
     populateQuestions();
 
     // Select the first available question by default
@@ -1603,11 +1652,16 @@ runCodeButton.addEventListener('click', async () => {
                 outputElement.textContent = result.output;
                 allPassed = false; // Mark as failed if any test case errors
             } else {
-                const actualOutput = result.output ? result.output.trim() : '';
-                outputElement.textContent = actualOutput;
+                // Apply formatting to BOTH actual and expected outputs before comparison
+                const formattedActualOutput = formatValueDisplayString(result.output);
+                // const formattedExpectedOutput = formatValueDisplayString(testCase.output); // Already calculated above loop
+                // Re-calculate formattedExpectedOutput here to be sure
+                const currentFormattedExpectedOutput = formatValueDisplayString(testCase.output); 
+
+                outputElement.textContent = formattedActualOutput; // Display the formatted actual output
                 
-                // Check if output matches formatted expected result
-                if (actualOutput === formattedExpectedOutput) {
+                // Check if FORMATTED output matches FORMATTED expected result
+                if (formattedActualOutput === currentFormattedExpectedOutput) {
                     outputElement.style.color = '#4caf50'; // Green for pass
                 } else {
                     outputElement.style.color = '#ffcc00'; // Yellow/Orange for mismatch
@@ -1619,15 +1673,40 @@ runCodeButton.addEventListener('click', async () => {
             outputElement.textContent = `Error: ${error.message}`;
             allPassed = false; // Mark as failed on exception
         }
-    }
+    } // End of loop through test cases
     
-    // Update question status
+    // --- Update question status and save to localStorage ---
     if (currentQuestion && attempted) {
         if (allPassed) {
             currentQuestion.status = 'completed';
         } else {
             currentQuestion.status = 'ongoing';
         }
+        
+        // Save status to localStorage
+        try {
+            const statuses = JSON.parse(localStorage.getItem('questionStatuses') || '{}');
+            statuses[currentQuestion.id] = currentQuestion.status;
+            localStorage.setItem('questionStatuses', JSON.stringify(statuses));
+        } catch (e) {
+            console.error("Failed to save question status:", e);
+        }
+
+        // Save outputs to localStorage
+        try {
+            let currentTestOutputs = {
+                case1: testResults[0] ? testResults[0].output : '',
+                case2: testResults[1] ? testResults[1].output : '',
+                case3: testResults[2] ? testResults[2].output : ''
+            };
+
+            let allTestOutputs = JSON.parse(localStorage.getItem('testOutputs') || '{}');
+            allTestOutputs[currentQuestion.id] = currentTestOutputs;
+            localStorage.setItem('testOutputs', JSON.stringify(allTestOutputs));
+        } catch (e) {
+            console.error("Failed to save test outputs:", e);
+        }
+        
         populateQuestions(); // Refresh the question list to show updated status
     }
 

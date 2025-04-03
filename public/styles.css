@@ -681,9 +681,9 @@ h1 {
     border-top: 1px solid var(--border-editor);
     display: flex;
     flex-direction: column;
-    height: 350px;
+    height: 200px;
     overflow: hidden;
-    min-height: 250px;
+    min-height: 200px;
     max-height: 50vh;
 }
 
