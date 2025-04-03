@@ -892,79 +892,34 @@ window.addEventListener('resize', () => {
     setTimeout(updateScrollIndicators, 200);
 });
 
-// Run code with better error handling for output and run all test cases simultaneously
-runCode.addEventListener('click', async () => {
-    const code = editor.getValue();
-    
-    // Get all output elements
-    const outputs = [
-        document.getElementById('output'),
-        document.getElementById('output2'),
-        document.getElementById('output3')
-    ];
-    
-    // Set all to "Running..."
-    outputs.forEach(out => {
-        out.textContent = 'Running...';
-        out.style.color = '#ddd';
-    });
-    
-    // Get the current question's test cases
-    const currentTitle = questionTitle.textContent;
-    const currentQuestion = questions.find(q => q.title === currentTitle);
-    const testCases = currentQuestion?.testCases || [];
-    
-    // Run each test case
-    for (let i = 0; i < 3; i++) {
-        if (i >= testCases.length) {
-            outputs[i].textContent = 'No test case available';
-            continue;
+// Function to run code
+async function runCode(code, testInput) {
+    try {
+        const response = await fetch('/api/run_code', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                code: code,
+                test_input: testInput
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        const testCase = testCases[i];
-        // Use the same formatting for comparison as used for display
-        const formattedExpectedOutput = formatValueDisplayString(testCase.output);
-        
-        try {
-            const response = await fetch('http://localhost:5000/run_code', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                mode: 'cors',
-                credentials: 'omit',
-                body: JSON.stringify({ 
-                    code,
-                    test_input: testCase.input // Send raw input string
-                })
-            });
-            
-            const result = await response.json();
-            
-            if (result.status === 'error') {
-                outputs[i].style.color = '#ff4444';
-                outputs[i].textContent = result.output;
-            } else {
-                // Backend output is already formatted as list string
-                const actualOutput = result.output.trim();
-                outputs[i].style.color = '#ddd';
-                outputs[i].textContent = actualOutput;
-                
-                // Check if output matches formatted expected result
-                if (actualOutput === formattedExpectedOutput) {
-                    outputs[i].style.color = '#4caf50';
-                }
-            }
-        } catch (error) {
-            outputs[i].style.color = '#ff4444';
-            outputs[i].textContent = `Error: Could not connect to the server. Make sure the Python server is running on port 5000.`;
-        }
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error('Error:', error);
+        return {
+            status: 'error',
+            output: `Error: ${error.message}`
+        };
     }
-    
-    // Update scroll indicators after all outputs are populated
-    setTimeout(updateScrollIndicators, 100);
-});
+}
 
 // Initialize the application
 populateQuestions();
