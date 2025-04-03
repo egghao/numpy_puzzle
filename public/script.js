@@ -1003,15 +1003,20 @@ const toggleQuestionsBtn = document.getElementById('toggleQuestions');
 const questionsGrid = document.getElementById('questionsGrid');
 const questionTitle = document.getElementById('questionTitle');
 const questionContent = document.getElementById('questionContent');
-const testCases = document.getElementById('testCases');
-const runCodeBtn = document.getElementById('runCode');
-const output = document.getElementById('output');
-const inputData = document.getElementById('inputData');
-const expectedResult = document.getElementById('expectedResult');
+const testCasesContainer = document.getElementById('testCases');
+const runCodeButton = document.getElementById('runCode');
+const outputElements = [document.getElementById('output'), document.getElementById('output2'), document.getElementById('output3')];
+const inputDataElements = [document.getElementById('inputData'), document.getElementById('inputData2'), document.getElementById('inputData3')];
+const expectedResultElements = [document.getElementById('expectedResult'), document.getElementById('expectedResult2'), document.getElementById('expectedResult3')];
+const tabs = document.querySelectorAll('.tab:not(.add-tab)');
+const tabContents = document.querySelectorAll('.tab-content');
+const searchBar = document.getElementById('searchBar');
 const filterBtn = document.getElementById('filterBtn');
 const filterDropdown = document.getElementById('filterDropdown');
-const themeToggleBtn = document.getElementById('themeToggle');
-const searchBar = document.getElementById('searchBar');
+const themeToggle = document.getElementById('themeToggle');
+const codeView = document.querySelector('.code-view'); // Get reference to code-view
+
+let currentQuestion = null;
 
 // Filter state
 let activeFilters = {
@@ -1030,6 +1035,61 @@ let activeFilters = {
         'Utility'
     ]
 };
+
+// Resizable Panel Logic
+let isResizing = false;
+let startX, startWidth;
+
+const savedPanelWidth = localStorage.getItem('panelWidth');
+if (savedPanelWidth) {
+    questionsPanel.style.width = savedPanelWidth + 'px';
+}
+
+questionsPanel.addEventListener('mousedown', (e) => {
+    // Check if the mousedown is near the right edge (e.g., within 10px)
+    // This provides a more specific drag handle than the whole panel
+    const rect = questionsPanel.getBoundingClientRect();
+    if (e.clientX >= rect.right - 10 && e.clientX <= rect.right) {
+        isResizing = true;
+        startX = e.clientX;
+        startWidth = questionsPanel.offsetWidth;
+        document.body.style.cursor = 'col-resize'; // Apply cursor to whole body during drag
+        document.body.style.userSelect = 'none'; // Prevent text selection globally
+        // Optional: Add a class for visual feedback during resize
+        questionsPanel.classList.add('resizing'); 
+    }
+});
+
+document.addEventListener('mousemove', (e) => {
+    if (!isResizing) return;
+    
+    const currentX = e.clientX;
+    const diffX = currentX - startX;
+    let newWidth = startWidth + diffX;
+
+    // Clamp width within min/max defined in CSS (or define here)
+    const minWidth = parseInt(getComputedStyle(questionsPanel).minWidth, 10);
+    const maxWidth = parseInt(getComputedStyle(questionsPanel).maxWidth, 10);
+    if (newWidth < minWidth) newWidth = minWidth;
+    if (maxWidth && newWidth > maxWidth) newWidth = maxWidth;
+
+    questionsPanel.style.width = newWidth + 'px';
+});
+
+document.addEventListener('mouseup', () => {
+    if (isResizing) {
+        isResizing = false;
+        document.body.style.cursor = 'default'; // Reset body cursor
+        document.body.style.userSelect = 'auto'; // Re-enable selection
+        questionsPanel.classList.remove('resizing'); // Remove visual feedback class
+        
+        // Persist the new width
+        localStorage.setItem('panelWidth', questionsPanel.offsetWidth);
+
+        // Important: Trigger a resize event so CodeMirror or other components can adjust
+        window.dispatchEvent(new Event('resize'));
+    }
+});
 
 // Toggle questions panel
 toggleQuestionsBtn.addEventListener('click', () => {
@@ -1072,27 +1132,51 @@ filterDropdown.addEventListener('change', (e) => {
     populateQuestions();
 });
 
-// Populate questions grid
+// Populate questions list
 function populateQuestions() {
-    questionsGrid.innerHTML = '';
-    const filteredQuestions = questions.filter(question => {
-        return activeFilters.difficulty.includes(question.difficulty) &&
-               activeFilters.category.includes(question.category);
+    // --- Get Filter Values ---
+    const selectedDifficulties = Array.from(filterDropdown.querySelectorAll('input[type="checkbox"][value^="Easy"], input[type="checkbox"][value^="Medium"], input[type="checkbox"][value^="Hard"]'))
+                                    .filter(cb => cb.checked)
+                                    .map(cb => cb.value);
+    const selectedCategories = Array.from(filterDropdown.querySelectorAll('input[type="checkbox"]:not([value^="Easy"]):not([value^="Medium"]):not([value^="Hard"])'))
+                                   .filter(cb => cb.checked)
+                                   .map(cb => cb.value);
+    // --- Get Search Term ---
+    const searchTerm = searchBar.value.toLowerCase();
+
+    questionsGrid.innerHTML = ''; // Clear existing questions
+
+    // --- Filter Questions ---
+    const filteredQuestions = questions.filter(q => {
+        const difficultyMatch = selectedDifficulties.length === 0 || selectedDifficulties.includes(q.difficulty);
+        const categoryMatch = selectedCategories.length === 0 || selectedCategories.includes(q.category);
+        // Add search term filtering (title or description)
+        const searchMatch = searchTerm === '' ||
+                            q.title.toLowerCase().includes(searchTerm) ||
+                            q.description.toLowerCase().includes(searchTerm);
+
+        return difficultyMatch && categoryMatch && searchMatch; // Combine all filters
     });
-    
-    filteredQuestions.forEach(question => {
-        const card = document.createElement('div');
-        card.className = 'question-card';
-        card.classList.add(question.status || 'pending');
-        card.innerHTML = `
-            <div class="question-card-content">
-                <h3>${question.title}</h3>
-                <span class="difficulty ${question.difficulty.toLowerCase()}">${question.difficulty}</span>
-            </div>
-        `;
-        card.addEventListener('click', () => loadQuestion(question));
-        questionsGrid.appendChild(card);
-    });
+
+    // --- Render Filtered Questions ---
+    if (filteredQuestions.length === 0) {
+        questionsGrid.innerHTML = '<p style="padding: 15px; color: var(--text-secondary);">No questions match your criteria.</p>';
+    } else {
+        filteredQuestions.forEach(question => {
+            const card = document.createElement('div');
+            card.className = 'question-card';
+            card.dataset.questionId = question.id;
+            card.innerHTML = `
+                <div class="question-card-content">
+                    <h3>${question.title}</h3>
+                    <span class="difficulty ${question.difficulty.toLowerCase()}">${question.difficulty}</span>
+                    <span class="status ${question.status}">${question.status}</span>
+                </div>
+            `;
+            card.addEventListener('click', () => loadQuestion(question.id));
+            questionsGrid.appendChild(card);
+        });
+    }
 }
 
 // Helper function to format array/value strings for display (removes array wrappers)
@@ -1153,7 +1237,24 @@ function formatInputDisplay(inputString) {
 }
 
 // Load question into code view
-function loadQuestion(question) {
+function loadQuestion(questionId) {
+    const question = questions.find(q => q.id === questionId);
+
+    if (!question) {
+        console.error("Question not found:", questionId);
+        questionTitle.textContent = "Error: Question not found";
+        questionContent.innerHTML = "";
+        testCasesContainer.innerHTML = "";
+        editor.setValue("# Question not found");
+        if (codeView) codeView.classList.remove('question-loaded'); // Show welcome screen on error
+        return;
+    }
+
+    // Question found, show the code container
+    if (codeView) codeView.classList.add('question-loaded');
+
+    currentQuestion = question;
+
     questionTitle.textContent = question.title;
     questionContent.innerHTML = `
         <p>${question.description}</p>
@@ -1164,7 +1265,7 @@ function loadQuestion(question) {
     `;
     
     // Populate test cases display (format expected output)
-    testCases.innerHTML = question.testCases.map((testCase, index) => `
+    testCasesContainer.innerHTML = question.testCases.map((testCase, index) => `
         <div class="test-case">
             <h4>Test Case ${index + 1}</h4>
             <p>${testCase.description}</p>
@@ -1183,35 +1284,38 @@ function loadQuestion(question) {
     
     // Update first tab
     if (testCasesData[0]) {
-        inputData.textContent = formatInputDisplay(testCasesData[0].input) || 'No test input available';
-        expectedResult.textContent = formatValueDisplayString(testCasesData[0].output) || 'No expected output available';
+        inputDataElements[0].textContent = formatInputDisplay(testCasesData[0].input) || 'No test input available';
+        expectedResultElements[0].textContent = formatValueDisplayString(testCasesData[0].output) || 'No expected output available';
     } else {
-        inputData.textContent = 'No test input available';
-        expectedResult.textContent = 'No expected output available';
+        inputDataElements[0].textContent = 'No test input available';
+        expectedResultElements[0].textContent = 'No expected output available';
     }
     
     // Update second tab
     if (testCasesData[1]) {
-        document.getElementById('inputData2').textContent = formatInputDisplay(testCasesData[1].input) || 'No test input available';
-        document.getElementById('expectedResult2').textContent = formatValueDisplayString(testCasesData[1].output) || 'No expected output available';
+        inputDataElements[1].textContent = formatInputDisplay(testCasesData[1].input) || 'No test input available';
+        expectedResultElements[1].textContent = formatValueDisplayString(testCasesData[1].output) || 'No expected output available';
     } else {
-        document.getElementById('inputData2').textContent = 'No test input available';
-        document.getElementById('expectedResult2').textContent = 'No expected output available';
+        inputDataElements[1].textContent = 'No test input available';
+        expectedResultElements[1].textContent = 'No expected output available';
     }
     
     // Update third tab
     if (testCasesData[2]) {
-        document.getElementById('inputData3').textContent = formatInputDisplay(testCasesData[2].input) || 'No test input available';
-        document.getElementById('expectedResult3').textContent = formatValueDisplayString(testCasesData[2].output) || 'No expected output available';
+        inputDataElements[2].textContent = formatInputDisplay(testCasesData[2].input) || 'No test input available';
+        expectedResultElements[2].textContent = formatValueDisplayString(testCasesData[2].output) || 'No expected output available';
     } else {
-        document.getElementById('inputData3').textContent = 'No test input available';
-        document.getElementById('expectedResult3').textContent = 'No expected output available';
+        inputDataElements[2].textContent = 'No test input available';
+        expectedResultElements[2].textContent = 'No expected output available';
     }
     
     // Reset output displays
-    output.textContent = 'Run code to see output';
-    document.getElementById('output2').textContent = 'Run code to see output';
-    document.getElementById('output3').textContent = 'Run code to see output';
+    outputElements.forEach(out => {
+        if (out) { // Check if element exists
+            out.textContent = 'Run code to see output';
+            out.style.color = '';
+        }
+    });
     
     // On mobile, collapse the questions panel after selection
     if (window.innerWidth <= 768) {
@@ -1250,30 +1354,32 @@ function updateScrollIndicators() {
     });
 }
 
-// Make tab switching more robust
-function initTabs() {
-    const tabs = document.querySelectorAll('.tab');
-    
-    tabs.forEach(tab => {
-        if (!tab.classList.contains('add-tab')) {
-            tab.addEventListener('click', () => {
-                // Remove active class from all tabs and tab contents
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
-                // Add active class to clicked tab
-                tab.classList.add('active');
-                
-                // Show corresponding tab content
-                const tabId = tab.getAttribute('data-tab');
-                document.getElementById(tabId).classList.add('active');
-                
-                // Update scroll indicators when tab changes
-                setTimeout(updateScrollIndicators, 100);
-            });
+// Add event listeners for tabs
+tabs.forEach((tab, index) => {
+    tab.addEventListener('click', () => {
+        // Remove active class from all tabs and contents
+        tabs.forEach(t => t.classList.remove('active'));
+        tabContents.forEach(c => c.classList.remove('active'));
+
+        // Add active class to the clicked tab and corresponding content
+        tab.classList.add('active');
+        const tabId = tab.getAttribute('data-tab'); // e.g., 'case1', 'case2'
+        const correspondingContent = document.getElementById(tabId);
+        if (correspondingContent) {
+            correspondingContent.classList.add('active');
         }
+
+        // --- Reset the output area for the activated tab --- 
+        if (outputElements[index]) { // Check if the output element exists
+            outputElements[index].textContent = 'Run code to see output'; 
+            outputElements[index].style.color = ''; // Reset color styling
+            updateScrollIndicators(); // Call the correct function to refresh all indicators
+        }
+        // Also reset input/expected for consistency visually when just clicking tabs?
+        // Maybe not, loadQuestion handles the placeholder text for those.
+        // Focus on resetting the *result* of a previous run.
     });
-}
+});
 
 // Run after window resize to recalculate scroll indicators
 window.addEventListener('resize', () => {
@@ -1313,18 +1419,18 @@ async function executeCode(code, testInput) {
 function applyTheme(theme) {
     if (theme === 'dark') {
         document.body.classList.add('dark-mode');
-        themeToggleBtn.textContent = '🌙'; // Moon icon for dark mode
+        themeToggle.textContent = '🌙'; // Moon icon for dark mode
     } else {
         document.body.classList.remove('dark-mode');
-        themeToggleBtn.textContent = '☀️'; // Sun icon for light mode
+        themeToggle.textContent = '☀️'; // Sun icon for light mode
     }
     // Add a small delay before updating scroll indicators to allow CSS transitions
     setTimeout(updateScrollIndicators, 350);
 }
 
-themeToggleBtn.addEventListener('click', () => {
-    const isDarkMode = document.body.classList.contains('dark-mode');
-    const newTheme = isDarkMode ? 'light' : 'dark';
+themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    const newTheme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
     localStorage.setItem('theme', newTheme);
     applyTheme(newTheme);
 });
@@ -1333,10 +1439,102 @@ themeToggleBtn.addEventListener('click', () => {
 const savedTheme = localStorage.getItem('theme') || 'light'; // Default to light
 applyTheme(savedTheme);
 
-// Initialize the application
-populateQuestions();
-initTabs(); // Initialize tabs
-applyTheme(savedTheme); // Apply theme after initializing other elements
+// Helper function to set initial filter checkbox states
+function updateFilterDropdownCheckboxes() {
+    if (!filterDropdown) return; // Exit if filter dropdown doesn't exist
+
+    const checkboxes = filterDropdown.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        // Set initial state based on HTML 'checked' attribute or default to checked
+        // This example assumes the HTML accurately reflects the desired default.
+        // If you loaded saved preferences, you'd apply them here.
+        if (checkbox.hasAttribute('checked')) {
+            checkbox.checked = true;
+        } else {
+             // checkbox.checked = false; // Or keep default if not specified
+        }
+        // For simplicity now, let's ensure all are checked initially, matching HTML
+        checkbox.checked = true; 
+    });
+}
+
+// Initial setup on DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+    // --- Theme Initialization ---
+    const currentTheme = localStorage.getItem('theme');
+    // Default to dark mode if no theme saved OR if saved theme is dark
+    if (currentTheme === null || currentTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+        localStorage.setItem('theme', 'dark'); // Ensure dark is saved
+        if (themeToggle) themeToggle.textContent = '☀️'; // Sun icon = dark mode on (click for light)
+    } else {
+        // Explicitly set light mode if saved theme is light
+        document.body.classList.remove('dark-mode');
+        // No need to set localStorage here, it's already 'light'
+        if (themeToggle) themeToggle.textContent = '🌙'; // Moon icon = light mode on (click for dark)
+    }
+
+    // Populate questions on initial load
+    populateQuestions();
+
+    // Select the first available question by default
+    let questionLoadedSuccessfully = false;
+    const firstAvailableQuestion = questions.find(q => {
+         // Find first question matching default filters (if any apply)
+         // This logic might need refinement if default filters are complex
+         const initialDifficulties = Array.from(filterDropdown.querySelectorAll('input[type="checkbox"][value^="Easy"], input[type="checkbox"][value^="Medium"], input[type="checkbox"][value^="Hard"]')).filter(cb => cb.checked).map(cb => cb.value);
+         const initialCategories = Array.from(filterDropdown.querySelectorAll('input[type="checkbox"]:not([value^="Easy"]):not([value^="Medium"]):not([value^="Hard"])')).filter(cb => cb.checked).map(cb => cb.value);
+         const difficultyMatch = initialDifficulties.length === 0 || initialDifficulties.includes(q.difficulty);
+         const categoryMatch = initialCategories.length === 0 || initialCategories.includes(q.category);
+         return difficultyMatch && categoryMatch;
+    });
+
+    if (firstAvailableQuestion) {
+        loadQuestion(firstAvailableQuestion.id);
+        questionLoadedSuccessfully = true;
+    } else if (questions.length > 0) {
+        loadQuestion(questions[0].id);
+        questionLoadedSuccessfully = true; // Assume success if questions exist
+    }
+
+    // Ensure welcome screen is shown if no question was loaded
+    if (!questionLoadedSuccessfully && codeView) {
+        codeView.classList.remove('question-loaded');
+    }
+
+    // Apply initial theme to CodeMirror
+    if (editor) {
+        editor.setOption("theme", document.body.classList.contains('dark-mode') ? "monokai" : "default");
+    }
+
+    // Initialize filter dropdown state
+    updateFilterDropdownCheckboxes();
+    if (filterBtn) filterBtn.classList.remove('active');
+
+    // Default state (no class) shows welcome, loadQuestion adds class on success.
+});
+
+// Theme Toggle Event Listener
+if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        const newTheme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+        localStorage.setItem('theme', newTheme);
+        themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+
+        // Update CodeMirror theme
+        if (editor) {
+            editor.setOption("theme", newTheme === 'dark' ? "monokai" : "default");
+        }
+    });
+}
+
+// Add event listener for the search bar input for live filtering
+// This listener should already exist and call populateQuestions correctly.
+// Ensure it is present and correctly attached if issues persist.
+if (searchBar) { // Defensive check
+    searchBar.addEventListener('input', populateQuestions);
+}
 
 // Call when content is updated
 function refreshOutput() {
@@ -1356,7 +1554,7 @@ document.querySelectorAll('.io-content').forEach(content => {
 updateScrollIndicators();
 
 // Run after code execution
-runCodeBtn.addEventListener('click', async () => {
+runCodeButton.addEventListener('click', async () => {
     const code = editor.getValue();
     
     // Get all output elements

@@ -143,25 +143,29 @@ h1 {
     display: flex;
     flex: 1;
     overflow: hidden;
-    transition: all 0.3s ease;
+    transition: none;
 }
 
 .questions-panel {
-    width: 300px;
-    min-width: 300px;
+    min-width: 200px;
+    max-width: 600px;
     background-color: var(--bg-primary);
-    border-right: 1px solid var(--border-primary);
+    border-right: 3px solid var(--border-primary);
     overflow-y: auto;
-    transition: all 0.3s ease;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
     display: flex;
     flex-direction: column;
+    cursor: col-resize;
+    user-select: none;
+    position: relative;
 }
 
 .questions-panel.collapsed {
-    width: 0;
-    min-width: 0;
-    overflow: hidden;
+    width: 0 !important;
+    min-width: 0 !important;
     border-right: none;
+    overflow: hidden;
+    cursor: default;
 }
 
 .questions-list {
@@ -173,38 +177,111 @@ h1 {
 
 .questions-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
     padding: 10px 15px;
     border-bottom: 1px solid var(--border-primary);
-    position: sticky;
-    top: 0;
-    background-color: var(--bg-primary);
-    z-index: 10;
+    margin-bottom: 0;
 }
 
 .questions-header h2 {
-    margin: 0;
+    margin: 0 0 10px 0;
     font-size: 18px;
     color: var(--text-primary);
 }
 
+.controls-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 #searchBar {
-    width: calc(100% - 30px);
+    flex-grow: 1;
     padding: 8px 12px;
-    margin: 10px 15px;
-    border: 1px solid var(--border-secondary);
-    background-color: var(--bg-tertiary);
-    color: var(--text-primary);
+    border: 1px solid var(--border-color, var(--border-secondary));
     border-radius: 4px;
-    font-size: 0.9em;
-    box-sizing: border-box; /* Include padding and border in width */
+    background-color: var(--input-bg, var(--bg-tertiary));
+    color: var(--text-color, var(--text-primary));
+    font-size: 14px;
 }
 
 #searchBar:focus {
     outline: none;
     border-color: var(--accent-secondary);
     box-shadow: 0 0 0 2px var(--accent-secondary-transparent, rgba(97, 175, 239, 0.3));
+}
+
+.filter-container {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.filter-btn {
+    padding: 8px;
+    background-color: var(--button-bg, var(--bg-tertiary));
+    border: 1px solid var(--border-color, var(--border-secondary));
+    color: var(--button-text, var(--text-primary));
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+}
+
+.filter-btn svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+}
+
+.filter-btn:hover {
+    background-color: var(--button-hover-bg, var(--bg-secondary));
+}
+
+.filter-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    margin-top: 5px;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color, var(--border-secondary));
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    padding: 15px;
+    width: 250px;
+}
+
+.filter-dropdown.show {
+    display: block;
+}
+
+.filter-section {
+    margin-bottom: 15px;
+}
+
+.filter-section:last-child {
+    margin-bottom: 0;
+}
+
+.filter-section h3 {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+}
+
+.filter-section label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.filter-section input[type="checkbox"] {
+    margin-right: 8px;
 }
 
 .questions-grid {
@@ -235,13 +312,25 @@ h1 {
     border-color: var(--border-tertiary);
 }
 
+.question-card-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+}
+
 .question-card-content h3 {
-    margin: 0 0 8px 0;
+    margin: 0;
     font-size: 1em;
     color: var(--link-color);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex-grow: 1;
 }
 
 .difficulty {
+    flex-shrink: 0;
     display: inline-block;
     padding: 3px 8px;
     border-radius: 12px;
@@ -269,11 +358,59 @@ h1 {
     border-color: var(--border-hard);
 }
 
+.status {
+    flex-shrink: 0;
+    font-size: 0.75em;
+    font-weight: normal;
+    text-transform: capitalize;
+    padding: 3px 8px;
+    border-radius: 12px;
+    color: var(--text-secondary);
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-secondary);
+}
+
+.status.ongoing {
+    color: var(--text-medium);
+    background-color: var(--highlight-medium);
+    border-color: var(--border-medium);
+}
+
+.status.completed {
+    color: var(--text-easy);
+    background-color: var(--highlight-easy);
+    border-color: var(--border-easy);
+}
+
 .code-view {
     flex: 1;
     overflow: hidden;
     background-color: var(--bg-secondary);
     transition: background-color 0.3s ease;
+    position: relative;
+}
+
+.welcome-screen {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 40px;
+    height: 100%;
+    box-sizing: border-box;
+    color: var(--text-secondary);
+}
+
+.welcome-screen h2 {
+    color: var(--text-primary);
+    margin-bottom: 15px;
+}
+
+.welcome-screen p {
+    max-width: 400px;
+    line-height: 1.6;
+    margin-bottom: 10px;
 }
 
 .code-container {
@@ -282,6 +419,15 @@ h1 {
     gap: 24px;
     height: 100%;
     padding: 24px;
+    display: none;
+}
+
+.code-view.question-loaded .code-container {
+    display: grid;
+}
+
+.code-view.question-loaded .welcome-screen {
+    display: none;
 }
 
 .question-description {
@@ -697,110 +843,6 @@ h1 {
     color: #8bc34a; /* Keep expected result color consistent */
     text-shadow: 0 0 2px rgba(139, 195, 74, 0.2);
 }
-
-.filter-container {
-    position: relative;
-}
-
-.filter-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 12px;
-    background-color: var(--bg-tertiary);
-    border: 1px solid var(--border-secondary);
-    border-radius: 6px;
-    color: var(--text-primary);
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-}
-
-.filter-btn:hover {
-    background-color: var(--bg-secondary);
-}
-
-.filter-btn svg {
-    transition: transform 0.2s ease;
-    stroke: var(--text-primary);
-}
-
-.filter-btn.active svg {
-    transform: rotate(180deg);
-}
-
-.filter-dropdown {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    margin-top: 8px;
-    background-color: var(--bg-primary);
-    border: 1px solid var(--border-secondary);
-    border-radius: 8px;
-    box-shadow: 0 4px 6px var(--shadow-primary);
-    padding: 12px;
-    min-width: 200px;
-    z-index: 1000;
-    display: none;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
-}
-
-.filter-dropdown.show {
-    display: block;
-}
-
-.filter-section {
-    margin-bottom: 12px;
-}
-
-.filter-section:last-child {
-    margin-bottom: 0;
-}
-
-.filter-section h3 {
-    font-size: 14px;
-    color: var(--text-tertiary);
-    margin: 0 0 8px 0;
-}
-
-.filter-section label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 4px 0;
-    font-size: 14px;
-    color: var(--text-primary);
-    cursor: pointer;
-}
-
-.filter-section input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    border: 2px solid var(--border-secondary);
-    border-radius: 4px;
-    cursor: pointer;
-    background-color: var(--bg-tertiary);
-    appearance: none;
-    position: relative;
-}
-
-.filter-section input[type="checkbox"]:checked {
-    background-color: var(--accent-primary);
-    border-color: var(--accent-primary);
-}
-
-.filter-section input[type="checkbox"]:checked::after {
-    content: '';
-    position: absolute;
-    left: 4px;
-    top: 1px;
-    width: 5px;
-    height: 9px;
-    border: solid white;
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
-}
-
 
 @media (max-width: 768px) {
     .questions-panel {
