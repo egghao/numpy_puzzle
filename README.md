@@ -1,6 +1,6 @@
 # NumPy Puzzle
 
-![NumPy Practice Screenshot](screenshot.png) 
+![NumPy Practice Screenshot](public/screenshot.png)
 
 An interactive web application for practicing NumPy implementations of common neural network operations. This project helps you understand the fundamentals of deep learning by implementing various neural network components from scratch using NumPy.
 
@@ -8,7 +8,7 @@ An interactive web application for practicing NumPy implementations of common ne
 ## Features
 
 - Interactive code editor with syntax highlighting
-- Real-time code execution
+- Real-time code execution via a serverless backend
 - Multiple difficulty levels (Easy, Medium, Hard)
 - Various categories of neural network operations:
   - Activation Functions
@@ -20,13 +20,15 @@ An interactive web application for practicing NumPy implementations of common ne
   - Loss Functions
 - Test cases for each implementation
 - Filter questions by difficulty and category
+- Deployable via Vercel
 
 ## Prerequisites
 
 - Python 3.8 or higher
 - pip (Python package installer)
+- Vercel CLI (for local development and deployment)
 - A modern web browser
-- Node.js and npm (optional, for serving the frontend)
+
 
 ## Installation
 
@@ -41,52 +43,60 @@ cd numpy_puzzle
 pip install -r requirements.txt
 ```
 
-## Running the Application
-
-1. Start the Python backend server:
+3. Install Vercel CLI:
 ```bash
-python server.py
-```
-The server will start on `http://localhost:5000`
-
-2. Serve the frontend:
-
-Option 1: Using Python's built-in HTTP server:
-```bash
-# In a new terminal
-python -m http.server 8000
-```
-Then open `http://localhost:8000` in your browser
-
-Option 2: Using Node.js http-server (if installed):
-```bash
-# Install http-server globally if you haven't already
-npm install -g http-server
-
-# Start the server
-http-server -p 8000
+npm install -g vercel
 ```
 
-Option 3: Simply open the `index.html` file in your web browser
+4. Log in to Vercel:
+```bash
+vercel login
+```
 
-## Usage
+## Running Locally (using Vercel CLI)
 
-1. Browse the available questions in the left panel
-2. Filter questions by difficulty and category using the filter button
-3. Select a question to view its description, template, and test cases
-4. Implement the solution in the code editor
-5. Click "Run Code" to test your implementation
-6. Check the output panel for results or error messages
+To run the application locally, including the serverless backend simulation:
+
+```bash
+vercel dev
+```
+
+This command starts a local development server (usually on `http://localhost:3000`) that mimics the Vercel environment, serving both the frontend and the Python API.
+
+## Deployment
+
+This project is configured for easy deployment using Vercel.
+
+1. Ensure you have committed your latest changes:
+```bash
+git add .
+git commit -m "Prepare for Vercel deployment"
+git push # (if deploying from a remote repo)
+```
+
+2. Deploy to Vercel:
+```bash
+vercel
+```
+
+Follow the prompts from the Vercel CLI. After deployment, Vercel will provide you with a public URL for your application.
+
 
 ## Project Structure
 
 ```
 .
-├── index.html          # Main HTML file
-├── styles.css          # CSS styles
-├── script.js           # Frontend JavaScript
-├── server.py          # Python backend server
-└── requirements.txt    # Python dependencies
+├── api/
+│   └── index.py         # Python serverless function (Flask app)
+├── public/
+│   ├── index.html       # Static frontend files
+│   ├── styles.css
+│   ├── script.js
+│   └── screenshot.png   # Application screenshot
+├── .gitignore           # Git ignore file
+├── requirements.txt     # Python dependencies
+├── vercel.json          # Vercel deployment configuration
+└── README.md            # This file
 ```
 
 ## Contributing

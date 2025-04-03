@@ -623,7 +623,7 @@ const questionsGrid = document.getElementById('questionsGrid');
 const questionTitle = document.getElementById('questionTitle');
 const questionContent = document.getElementById('questionContent');
 const testCases = document.getElementById('testCases');
-const runCode = document.getElementById('runCode');
+const runCodeBtn = document.getElementById('runCode');
 const output = document.getElementById('output');
 const inputData = document.getElementById('inputData');
 const expectedResult = document.getElementById('expectedResult');
@@ -892,8 +892,8 @@ window.addEventListener('resize', () => {
     setTimeout(updateScrollIndicators, 200);
 });
 
-// Function to run code
-async function runCode(code, testInput) {
+// Function to execute code via API
+async function executeCode(code, testInput) {
     try {
         const response = await fetch('/api/run_code', {
             method: 'POST',
@@ -942,14 +942,67 @@ document.querySelectorAll('.io-content').forEach(content => {
 // Initial update
 updateScrollIndicators();
 
-// Run when tab is changed
-document.querySelectorAll('.tab').forEach(tab => {
-    if (!tab.classList.contains('add-tab')) {
-        tab.addEventListener('click', refreshOutput);
-    }
-});
-
 // Run after code execution
-runCode.addEventListener('click', function() {
-    setTimeout(refreshOutput, 500);
+runCodeBtn.addEventListener('click', async () => {
+    const code = editor.getValue();
+    
+    // Get all output elements
+    const outputs = [
+        document.getElementById('output'),
+        document.getElementById('output2'),
+        document.getElementById('output3')
+    ];
+    
+    // Set all to "Running..."
+    outputs.forEach(out => {
+        if (out) { // Check if element exists
+            out.textContent = 'Running...';
+            out.style.color = '#ddd';
+        }
+    });
+    
+    // Get the current question's test cases
+    const currentTitle = questionTitle.textContent;
+    const currentQuestion = questions.find(q => q.title === currentTitle);
+    const testCasesData = currentQuestion?.testCases || [];
+    
+    // Run each test case
+    for (let i = 0; i < 3; i++) {
+        const outputElement = outputs[i];
+        if (!outputElement) continue; // Skip if output element doesn't exist
+        
+        if (i >= testCasesData.length) {
+            outputElement.textContent = 'No test case available';
+            continue;
+        }
+        
+        const testCase = testCasesData[i];
+        const formattedExpectedOutput = formatValueDisplayString(testCase.output);
+        
+        try {
+            // Call the renamed function executeCode
+            const result = await executeCode(code, testCase.input); 
+            
+            if (result.status === 'error') {
+                outputElement.style.color = '#ff4444'; // Red for error
+                outputElement.textContent = result.output;
+            } else {
+                const actualOutput = result.output ? result.output.trim() : '';
+                outputElement.textContent = actualOutput;
+                
+                // Check if output matches formatted expected result
+                if (actualOutput === formattedExpectedOutput) {
+                    outputElement.style.color = '#4caf50'; // Green for pass
+                } else {
+                    outputElement.style.color = '#ffcc00'; // Yellow/Orange for mismatch
+                }
+            }
+        } catch (error) {
+            outputElement.style.color = '#ff4444'; // Red for error
+            outputElement.textContent = `Error: ${error.message}`;
+        }
+    }
+    
+    // Update scroll indicators after all outputs are populated
+    setTimeout(refreshOutput, 500); 
 }); 
