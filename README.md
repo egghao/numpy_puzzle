@@ -1,4 +1,4 @@
-# NumPy Neural Network Practice
+# NumPy Puzzle
 
 ![NumPy Practice Screenshot](screenshot.png) 
 
@@ -32,8 +32,8 @@ An interactive web application for practicing NumPy implementations of common ne
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
-cd numpy-neural-network-practice
+git clone https://github.com/egghao/numpy_puzzle.git
+cd numpy_puzzle
 ```
 
 2. Install Python dependencies:
