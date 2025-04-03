@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NumPy Neural Network Practice</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-left">
+                <button id="toggleQuestions" class="toggle-btn">☰</button>
+                <h1>NumPy Neural Network Practice</h1>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div id="questionsPanel" class="questions-panel">
+                <div class="questions-list">
+                    <div class="questions-header">
+                        <h2>Available Questions</h2>
+                        <div class="filter-container">
+                            <button id="filterBtn" class="filter-btn">
+                                <span>Filter</span>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/>
+                                </svg>
+                            </button>
+                            <div id="filterDropdown" class="filter-dropdown">
+                                <div class="filter-section">
+                                    <h3>Difficulty</h3>
+                                    <label><input type="checkbox" value="Easy" checked> Easy</label>
+                                    <label><input type="checkbox" value="Medium" checked> Medium</label>
+                                    <label><input type="checkbox" value="Hard" checked> Hard</label>
+                                </div>
+                                <div class="filter-section">
+                                    <h3>Category</h3>
+                                    <label><input type="checkbox" value="Activation Functions" checked> Activation Functions</label>
+                                    <label><input type="checkbox" value="Linear Layers" checked> Linear Layers</label>
+                                    <label><input type="checkbox" value="Convolution" checked> Convolution</label>
+                                    <label><input type="checkbox" value="Pooling" checked> Pooling</label>
+                                    <label><input type="checkbox" value="Regularization" checked> Regularization</label>
+                                    <label><input type="checkbox" value="Normalization" checked> Normalization</label>
+                                    <label><input type="checkbox" value="Loss Functions" checked> Loss Functions</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="questions-grid" id="questionsGrid">
+                        <!-- Questions will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-view">
+                <div class="code-container">
+                    <div class="question-description">
+                        <h2 id="questionTitle">Question Title</h2>
+                        <div id="questionContent">
+                            <!-- Question content will be populated here -->
+                        </div>
+                        <div class="test-cases">
+                            <h3>Test Cases</h3>
+                            <div id="testCases">
+                                <div class="test-case">
+                                    <h4>Test Case 1</h4>
+                                    <p>Basic test case with 3 classes</p>
+                                    <div class="test-case-content">
+                                        <pre data-type="Input"><code>np.array([[1, 2, 3]])</code></pre>
+                                        <pre data-type="Expected Output"><code>array([[0.09003057, 0.24472847, 0.66524096]])</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="code-editor">
+                        <div class="editor-header">
+                            <select id="frameworkSelect">
+                                <option value="numpy">NumPy</option>
+                            </select>
+                            <button id="runCode">Run Code</button>
+                        </div>
+                        <div class="editor-container">
+                            <textarea id="codeEditor"></textarea>
+                        </div>
+                        <div class="testcase-section">
+                            <div class="testcase-tabs">
+                                <button class="tab active" data-tab="case1">Case 1</button>
+                                <button class="tab" data-tab="case2">Case 2</button>
+                                <button class="tab" data-tab="case3">Case 3</button>
+                                <button class="tab add-tab">+</button>
+                            </div>
+                            <div class="tab-content active" id="case1">
+                                <div class="io-container">
+                                    <div class="io-section">
+                                        <h3>Input</h3>
+                                        <pre id="inputData" class="io-content"></pre>
+                                    </div>
+                                    <div class="io-section">
+                                        <h3>Expected Result</h3>
+                                        <pre id="expectedResult" class="io-content"></pre>
+                                    </div>
+                                    <div class="io-section">
+                                        <h3>Output</h3>
+                                        <pre id="output" class="io-content"></pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-content" id="case2">
+                                <div class="io-container">
+                                    <div class="io-section">
+                                        <h3>Input</h3>
+                                        <pre id="inputData2" class="io-content">No input available for this test case</pre>
+                                    </div>
+                                    <div class="io-section">
+                                        <h3>Expected Result</h3>
+                                        <pre id="expectedResult2" class="io-content">No expected result available</pre>
+                                    </div>
+                                    <div class="io-section">
+                                        <h3>Output</h3>
+                                        <pre id="output2" class="io-content">No output available</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-content" id="case3">
+                                <div class="io-container">
+                                    <div class="io-section">
+                                        <h3>Input</h3>
+                                        <pre id="inputData3" class="io-content">No input available for this test case</pre>
+                                    </div>
+                                    <div class="io-section">
+                                        <h3>Expected Result</h3>
+                                        <pre id="expectedResult3" class="io-content">No expected result available</pre>
+                                    </div>
+                                    <div class="io-section">
+                                        <h3>Output</h3>
+                                        <pre id="output3" class="io-content">No output available</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> 
